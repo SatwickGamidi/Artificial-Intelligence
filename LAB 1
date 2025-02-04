@@ -1,0 +1,34 @@
+appliances = [
+    {"name": "Air Conditioner", "state": "ON", "price": 0.5, "comfort_deviation": -0.1, "benefit": 0.8},
+    {"name": "Heater", "state": "OFF", "price": 0.3, "comfort_deviation": 0.3, "benefit": 0.7},
+    {"name": "Fan", "state": "ON", "price": 0.2, "comfort_deviation": -0.2, "benefit": 0.6},
+]
+
+def calculate_utility(appliance):
+    price = appliance["price"]
+    benefit = appliance["benefit"]
+    comfort_deviation = appliance["comfort_deviation"]
+    penalty = -0.5 if comfort_deviation < 0 else 0
+    utility = max(0, min(1, benefit - price + penalty))
+    return utility
+
+def recommend_appliance_settings(appliances):
+    best_appliance = None
+    highest_utility = -float("inf")
+    for appliance in appliances:
+        utility = calculate_utility(appliance)
+        if utility > highest_utility:
+            highest_utility = utility
+            best_appliance = appliance
+    return best_appliance
+
+best_appliance = recommend_appliance_settings(appliances)
+
+if best_appliance:
+    print("Recommended Appliance Setting:")
+    print(f"Name: {best_appliance['name']}")
+    print(f"State: {best_appliance['state']}")
+    print(f"Price: ${best_appliance['price']}")
+    print(f"Comfort Deviation: {best_appliance['comfort_deviation']}")
+else:
+    print("No suitable appliance settings found.")
