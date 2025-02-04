@@ -1,0 +1,32 @@
+class SmartHomeAgent:
+    def __init__(self, appliances):
+        self.appliances = appliances
+
+    def calculate_utility(self, appliance, price, comfort_deviation):
+        benefit = appliance['efficiency']
+        cost = appliance['power'] * price
+        penalty = -0.5 if comfort_deviation else 0
+        return max(0, min(1, benefit - cost + penalty))
+
+    def recommend_appliance_settings(self, price, comfort_preferences):
+        best_utility = 0
+        best_recommendation = None
+        for appliance in self.appliances:
+            comfort_deviation = appliance['name'] in comfort_preferences['critical_appliances']
+            utility = self.calculate_utility(appliance, price, comfort_deviation)
+            if utility > best_utility:
+                best_utility = utility
+                best_recommendation = f"Adjust {appliance['name']}"
+        return best_recommendation
+
+appliances = [
+    {'name': 'Air Conditioner', 'power': 1.5, 'efficiency': 0.8},
+    {'name': 'Washing Machine', 'power': 0.5, 'efficiency': 0.6},
+    {'name': 'Lights', 'power': 0.2, 'efficiency': 0.9}
+]
+
+agent = SmartHomeAgent(appliances)
+price = 0.3
+comfort_preferences = {'critical_appliances': ['Air Conditioner']}
+recommendation = agent.recommend_appliance_settings(price, comfort_preferences)
+print("Recommended Action:", recommendation)
