@@ -1,32 +1,41 @@
-class SmartHomeAgent:
-    def __init__(self, appliances):
-        self.appliances = appliances
+class RestaurantAgent:
+    def __init__(self, restaurants):
+        self.restaurants = restaurants
 
-    def calculate_utility(self, appliance, price, comfort_deviation):
-        benefit = appliance['efficiency']
-        cost = appliance['power'] * price
-        penalty = -0.5 if comfort_deviation else 0
-        return max(0, min(1, benefit - cost + penalty))
+    def calculate_utility(self, restaurant, user_preferences):
+        w1, w2, w3, w4 = 0.3, 0.2, 0.3, 0.2
+        cuisine_score = 1 if restaurant["cuisine"] == user_preferences["cuisine"] else 0
+        location_score = max(0, 1 - (restaurant["distance"] / 10))
+        rating_score = restaurant["rating"] / 5
+        preference_match = restaurant["preference_match"]
+        utility = max(0, min(1, w1 * cuisine_score + w2 * location_score + w3 * rating_score + w4 * preference_match))
+        return utility
 
-    def recommend_appliance_settings(self, price, comfort_preferences):
-        best_utility = 0
-        best_recommendation = None
-        for appliance in self.appliances:
-            comfort_deviation = appliance['name'] in comfort_preferences['critical_appliances']
-            utility = self.calculate_utility(appliance, price, comfort_deviation)
-            if utility > best_utility:
-                best_utility = utility
-                best_recommendation = f"Adjust {appliance['name']}"
-        return best_recommendation
+    def recommend_restaurant(self, user_preferences):
+        best_restaurant = None
+        highest_utility = -float("inf")
+        for restaurant in self.restaurants:
+            utility = self.calculate_utility(restaurant, user_preferences)
+            if utility > highest_utility:
+                highest_utility = utility
+                best_restaurant = restaurant
+        return best_restaurant
 
-appliances = [
-    {'name': 'Air Conditioner', 'power': 1.5, 'efficiency': 0.8},
-    {'name': 'Washing Machine', 'power': 0.5, 'efficiency': 0.6},
-    {'name': 'Lights', 'power': 0.2, 'efficiency': 0.9}
+restaurants = [
+    {"name": "Spicy Delight", "cuisine": "Indian", "distance": 5, "rating": 4.5, "preference_match": 0.9},
+    {"name": "Pasta Palace", "cuisine": "Italian", "distance": 8, "rating": 4.0, "preference_match": 0.8},
+    {"name": "Sushi Spot", "cuisine": "Japanese", "distance": 3, "rating": 4.7, "preference_match": 0.7}
 ]
 
-agent = SmartHomeAgent(appliances)
-price = 0.3
-comfort_preferences = {'critical_appliances': ['Air Conditioner']}
-recommendation = agent.recommend_appliance_settings(price, comfort_preferences)
-print("Recommended Action:", recommendation)
+user_preferences = {"cuisine": "Indian"}
+agent = RestaurantAgent(restaurants)
+best_restaurant = agent.recommend_restaurant(user_preferences)
+
+if best_restaurant:
+    print("Recommended Restaurant:")
+    print(f"Name: {best_restaurant['name']}")
+    print(f"Cuisine: {best_restaurant['cuisine']}")
+    print(f"Distance: {best_restaurant['distance']} km")
+    print(f"Rating: {best_restaurant['rating']}")
+else:
+    print("No suitable restaurant found.")
