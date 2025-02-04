@@ -1,0 +1,39 @@
+import random
+
+class SmartHomeAgent:
+    def __init__(self):
+        self.devices = [
+            {"name": "Lights", "state": "ON", "energy_usage": 0.1, "comfort_impact": 0.2},
+            {"name": "Thermostat", "state": "22°C", "energy_usage": 0.5, "comfort_impact": 0.8},
+            {"name": "Washing Machine", "state": "OFF", "energy_usage": 0.7, "comfort_impact": 0.1}
+        ]
+
+    def calculate_utility(self, device):
+        energy_usage = device["energy_usage"]
+        comfort_impact = device["comfort_impact"]
+        penalty = -0.5 if device["state"] == "OFF" and comfort_impact > 0.5 else 0
+        utility = max(0, min(1, comfort_impact - energy_usage + penalty))
+        return utility
+
+    def recommend_device_settings(self):
+        best_device = None
+        highest_utility = -float("inf")
+        for device in self.devices:
+            device["state"] = random.choice(["ON", "OFF"]) if device["name"] != "Thermostat" else f"{random.randint(18, 25)}°C"
+            utility = self.calculate_utility(device)
+            if utility > highest_utility:
+                highest_utility = utility
+                best_device = device
+        return best_device
+
+agent = SmartHomeAgent()
+best_device_setting = agent.recommend_device_settings()
+
+if best_device_setting:
+    print("Recommended Device Setting:")
+    print(f"Device: {best_device_setting['name']}")
+    print(f"State: {best_device_setting['state']}")
+    print(f"Energy Usage: {best_device_setting['energy_usage']} kWh")
+    print(f"Comfort Impact: {best_device_setting['comfort_impact']}")
+else:
+    print("No optimal device settings found.")
